@@ -1,0 +1,14 @@
+{
+  "name": "token-nuker",
+  "version": "1.0.0",
+  "description": "For nuking discord user tokens",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "endless",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1"
+  }
+}
