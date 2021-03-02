@@ -59,7 +59,7 @@ class User extends Color {
         friends.forEach(
           (friend) => {
             Axios.delete(`https://discord.com/api/v8/users/@me/relationships/${friend}`, {
-              headers: this.headers
+              headers: this.headers.nuke
             }).then(
               () => Color.log(`Unfriended ${friend}`)
             ).catch(
