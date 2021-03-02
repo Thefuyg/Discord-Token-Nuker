@@ -36,7 +36,7 @@ class User extends Color {
         `ID       |   ${data.id}`,
         `Language |   ${data.locale}`,
         `Verified |   ${data.verified}`,
-        `Flags    |   All: ${data.flags} | Private: ${data.public_flags}`,
+        `Flags    |   All: ${data.flags} | Public: ${data.public_flags}`,
         `NSFW     |   ${data.nsfw_allowed}`,
         `Avatar   |   ${base + `${data.id}/${data.avatar}.jpg`}`
       ];
