@@ -16,9 +16,7 @@ class User extends Color {
 
       nuke: {
         'Authorization': this.token,
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36',
-        "Content-Type": "application/json",
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36'
       }
     };
   };
@@ -135,6 +133,32 @@ class User extends Color {
       }
     ).catch(
       (e) => {
+        Color.log(e, '>', 0);
+      }
+    );
+
+    await Axios(
+      { method: 'GET', url: base + '/users/@me/channels', headers: this.headers.nuke }
+    ).then(
+      (response) => {
+        const channels = [];
+
+        response.data.forEach(
+          (channel) => {
+            channels.push(channel.id);
+          }
+        );
+
+        channels.forEach(
+          (channel) => {
+            Axios.delete(base + `/channels/${channel}`, {
+              headers: this.headers.nuke
+            });
+          }
+        );
+      }
+    ).catch(
+      () => {
         Color.log(e, '>', 0);
       }
     );
