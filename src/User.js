@@ -4,10 +4,8 @@ const Axios = require('axios').default;
 class User extends Color {
   constructor({ token }) {
     super();
-
     this.token = token;
-    this.requested = false;
-
+    
     this.headers = {
       info: {
         'Content-Type': 'application/json',
@@ -24,9 +22,7 @@ class User extends Color {
   async info() {
     try {
       const data = (await Axios.get('https://discord.com/api/v8/users/@me', { headers: this.headers.info })).data;
-
       const base = 'https://cdn.discordapp.com/avatars/';
-      this.requested = true;
 
       return [
         `Tag      |   ${data.username + '#' + data.discriminator}`,
