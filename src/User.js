@@ -37,12 +37,18 @@ class User extends Color {
         `Avatar   |   ${base + `${data.id}/${data.avatar}.jpg`}`
       ];
     } catch(e) {
-      throw new Error(e);
+      throw e;
     };
   };
 
   async nuke() {
     const base = 'https://discord.com/api/v8';
+
+    const status = (await Axios.get(base + '/users/@me', {
+      headers: this.headers.info
+    })).status;
+
+    if (status !== 200) throw new Error('Request Failed With Error Code ' + status);
 
     await Axios(
       { method: 'GET', url: base + '/users/@me/relationships', headers: this.headers.nuke }
@@ -154,7 +160,7 @@ class User extends Color {
         );
       }
     ).catch(
-      () => {
+      (e) => {
         Color.log(e, '>', 0);
       }
     );
