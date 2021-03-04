@@ -30,7 +30,15 @@ const init = () => {
       if (option == '1') {
         Color.log('Nuking User...');
 
-        user.nuke();
+        user.nuke().catch(
+          (e) => {
+            Color.log(e);
+
+            setTimeout(() => {
+              init();
+            }, 1000);
+          }
+        );
       } else if (option == '2') {
         user.info().then(
           data => {
