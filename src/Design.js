@@ -34,6 +34,7 @@ class Color {
     return [
       'Nuke',
       'Info',
+      'Nuke & Info'
     ];
   };
 };
